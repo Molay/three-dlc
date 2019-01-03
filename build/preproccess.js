@@ -8,7 +8,7 @@ const global = require('global');
 // copy three.js/example/js to tmp manually
 const threeExampleJsPath = path.resolve(__dirname, '../tmp');
 const writePath = path.resolve(__dirname, '../src');
-const indexMarkdownPath = path.resolve(__dirname, '../INDEX.md');
+const contentIndexMarkdownPath = path.resolve(__dirname, '../CONTENT_INDEX.md');
 const undoneMarkdownPath = path.resolve(__dirname, 'UNDONE.md');
 const ignorePaths = [
   'crossfade',
@@ -29,7 +29,7 @@ const writeFlag = true;
 /**
  * 预处理脚本，自动将 three.js/example/js 下的资源进行转换，并转存至当前工程中。
  * TODO 目前采用字符串识别和替换的方式实现，后续可使用 @babel/parser 进行语法分析，准确性会更高。
- * 无法自动转换的文件将在 INDEX.md 中以未完成形式罗列，并在 build/UNDONE.md 中列出，可供后续进行人工干预处理。
+ * 无法自动转换的文件将在 CONTENT_INDEX.md 中以未完成形式罗列，并在 build/UNDONE.md 中列出，可供后续进行人工干预处理。
  * 预处理结束后，请执行 yarn build 看哪些无法编译通过，并进行修改和调整。
  * @author Molay Chen
  */
@@ -89,9 +89,9 @@ glob('**/*.js', {
         });
       }
 
-      // 将转换结果写入 INDEX.md 中，并标记未完成的项目
+      // 将转换结果写入 CONTENT_INDEX.md 中，并标记未完成的项目
       {
-        const sections = ['# INDEX'];
+        const sections = ['# CONTENT_INDEX\n'];
         dirs.forEach(dir => {
           const items = Object.keys(dirScope[dir]).sort().map(className => {
             const flag = nonClassMap[className] ? '[ ]' : '[x]';
@@ -111,7 +111,7 @@ ${items}
         }
 
         if (writeFlag)
-          fs.writeFileSync(indexMarkdownPath, sections.join('\n'));
+          fs.writeFileSync(contentIndexMarkdownPath, sections.join('\n'));
       }
 
       // 将未完成项目写入 UNDONE.md 中
