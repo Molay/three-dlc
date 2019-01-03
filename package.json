@@ -19,6 +19,17 @@
     "email": "molayc@gmail.com",
     "url": "https://www.molayc.com"
   },
+  "files": [
+    "dist",
+    "src",
+    "CHANGELOG",
+    "CONTENT_INDEX.md",
+    "CONTRIBUTING.md",
+    "LICENSE",
+    "LICENSE_THREE",
+    "package.json",
+    "README.md"
+  ],
   "main": "src/index.js",
   "repository": {
     "type": "git",
