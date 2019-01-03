@@ -5,10 +5,12 @@
 
 # testing
 /coverage
+/tmp
 
 # production
 #/build
-#/dist
+/dist
+/build/*.md
 
 # other
 *.zip

@@ -1,7 +1,7 @@
 {
   "name": "three-dlc",
-  "version": "0.100.0-rc.0",
-  "main": "dist/index.js",
+  "version": "0.100.0-alpha-0",
+  "main": "src/index.js",
   "license": "MIT",
   "author": "Molay Chen",
   "description": "The three.js expansion library with official example modules.",
@@ -11,7 +11,8 @@
   },
   "scripts": {
     "build": "webpack --mode production",
-    "test": "node ./dist/index.js",
+    "build:dev": "webpack --mode development",
+    "test": "node ./build/test.js",
     "preproccess": "node ./build/preproccess.js"
   },
   "dependencies": {
@@ -25,9 +26,10 @@
     "@babel/preset-env": "^7.2.3",
     "babel-loader": "^8.0.4",
     "glob": "^7.1.3",
+    "global": "^4.3.2",
     "rimraf": "^2.6.2",
     "uglifyjs-webpack-plugin": "^2.1.1",
     "webpack": "^4.28.2",
-    "webpack-cli": "^3.1.2"
+    "webpack-cli": "^3.2.0"
   }
 }

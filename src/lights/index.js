@@ -1,0 +1,1 @@
+export RectAreaLightUniformsLib from './RectAreaLightUniformsLib';

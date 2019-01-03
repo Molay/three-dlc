@@ -2,6 +2,10 @@ const config = {
   entry: {
     'index': `./src/index.js`,
   },
+  output: {
+    filename: '[name].js',
+    libraryTarget: 'commonjs'
+  },
   module: {
     rules: [
       {
@@ -20,7 +24,7 @@ const config = {
   },
   resolveLoader: {},
   externals: {
-    'three': 'require("three")',
+    'three': 'three',
   },
   plugins: []
 };
@@ -35,6 +39,9 @@ module.exports = (env, argv) => {
     // config.devtool = 'source-map';
     // config.plugins.push(
     // );
+    config.optimization = {
+      minimize: false
+    };
   }
   else if (argv.mode === 'production') {
     config.plugins.push(
@@ -53,23 +60,23 @@ module.exports = (env, argv) => {
         'The three.js LICENSE',
         'http://threejs.org/license'
       ].join('\n')),
-      // new UglifyJsPlugin({
-      //   uglifyOptions: {
-      //     compress: {
-      //       drop_console: true,
-      //       warnings: false
-      //     },
-      //     // mangle: {
-      //     //   properties: {
-      //     //     regex: /^_[^_]/
-      //     //   }
-      //     // }
-      //   }
-      // })
+      new UglifyJsPlugin({
+        uglifyOptions: {
+          compress: {
+            drop_console: true,
+            warnings: false
+          },
+          // mangle: {
+          //   properties: {
+          //     regex: /^_[^_]/
+          //   }
+          // }
+        }
+      })
     );
-    config.optimization = {
-      minimize: false
-    };
+    // config.optimization = {
+    //   minimize: false
+    // };
   }
 
   return config;

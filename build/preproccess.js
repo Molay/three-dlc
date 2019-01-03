@@ -3,12 +3,22 @@ const path = require('path');
 const glob = require('glob');
 const rimraf = require('rimraf');
 const three = require('three');
+const global = require('global');
 
 // copy three.js/example/js to tmp manually
 const threeExampleJsPath = path.resolve(__dirname, '../tmp');
 const writePath = path.resolve(__dirname, '../src');
 const indexMarkdownPath = path.resolve(__dirname, '../INDEX.md');
 const undoneMarkdownPath = path.resolve(__dirname, 'UNDONE.md');
+const ignorePaths = [
+  'crossfade',
+  'libs',
+  'loaders/ctm',
+  'loaders/sea3d',
+  'nodes',
+  'offscreen',
+  'utils/ldraw',
+];
 
 const regExp01 = /\bTHREE\.(\w+?)\b/g;
 const regExp02 = /\bTHREE\./g;
@@ -26,12 +36,7 @@ const writeFlag = true;
 glob('**/*.js', {
   cwd: threeExampleJsPath,
   dot: false,
-  ignore: [
-    'libs/**',
-    'crossfade/**',
-    'nodes/**',
-    'utils/ldraw/**'
-  ]
+  ignore: ignorePaths.map(path => path + '/**')
 }, function (err, files) {
 
   const dlcScope = {};
@@ -79,7 +84,8 @@ glob('**/*.js', {
           if (exportFromChildren.length > 0) content.push(exportFromChildren);
           if (content.length > 0) content.push('');
 
-          fs.writeFileSync(path.resolve(writePath, dir, 'index.js'), content.join('\n'));
+          if (writeFlag)
+            fs.writeFileSync(path.resolve(writePath, dir, 'index.js'), content.join('\n'));
         });
       }
 
@@ -92,12 +98,20 @@ glob('**/*.js', {
             const filePath = `./src${dir ? '/' + dir : ''}/${className}.js`;
             return `- ${flag} [${className}](${filePath} "${className}")`;
           }).join('\n');
-          const section = `## /${dir}
+          const section = `## [/${dir}](./src${dir ? '/' + dir : ''}/index.js "index.js of /${dir}")
 ${items}
 `;
           sections.push(section);
         });
-        fs.writeFileSync(indexMarkdownPath, sections.join('\n'));
+        // ignored path
+        if (ignorePaths.length > 0) {
+          sections.push(`## Ignored Path
+- ${ignorePaths.sort().join('\n- ')}
+`);
+        }
+
+        if (writeFlag)
+          fs.writeFileSync(indexMarkdownPath, sections.join('\n'));
       }
 
       // 将未完成项目写入 UNDONE.md 中
@@ -105,12 +119,14 @@ ${items}
         const sections = [];
         sections.push('# UNDONE');
         sections.push(`- ${Object.values(nonClassMap).sort().join('\n- ')}`);
-        fs.writeFileSync(undoneMarkdownPath, sections.join('\n'));
+        if (writeFlag)
+          fs.writeFileSync(undoneMarkdownPath, sections.join('\n'));
       }
     }
   };
 
-  rimraf.sync(writePath + '/*');
+  if (writeFlag)
+    rimraf.sync(writePath + '/*');
 
   files.forEach(file => {
     const filePath = path.resolve(threeExampleJsPath, file);
@@ -132,44 +148,52 @@ ${items}
       if (!fileScope[name]) {
         nonClassMap[name] = file;
         nonClassFlag = true;
-
-        // // TODO 目前没有做处理，直接拷贝文件，等待人工干预
-        // if (writeFlag) {
-        //   const writeFilePath = path.resolve(writePath, file);
-        //   fs.mkdirSync(path.dirname(writeFilePath), {recursive: true});
-        //   fs.writeFileSync(writeFilePath, data);
-        // }
-        //
-        // onFileRead();
-        // return;
       }
 
       // 调整内容存为新文件
+      const protectedNameMap = {};
       const importFromThree = [];
       const importFromDlc = [];
       Object.keys(fileScope).sort().forEach(className => {
-        // if (className === name) return;
-        if (three.hasOwnProperty(className) && className !== name) importFromThree.push(className);
-        else if (dlcScope[className] && className !== name) importFromDlc.push(className);
+        if (className === name) return;
+        if (three.hasOwnProperty(className)) {
+          importFromThree.push(className);
+          if (global[className]) {
+            // 有些类名比较坑，比如THREE.Math，不作处理的话会产生非常麻烦的问题
+            // 所有待保护的名称将从 A 替换为 ThreeA ，并在导入时使用 A as ThreeA
+            protectedNameMap[className] = 'Three' + className;
+          }
+        } else if (dlcScope[className]) importFromDlc.push(className);
       });
 
-      // replace main entry
-      if (!nonClassFlag) {
+      // protect
+      Object.keys(protectedNameMap).forEach(className => {
         data = data.replace(
-          new RegExp(`THREE.${name}[\\s]*?=([^=])`, 'm'),
-          `const ${name} =$1`
+          new RegExp(`THREE\\.${className}`, 'g'),
+          protectedNameMap[className]
         );
-      }
+      });
+
+      // replace all "THREE.X = " to "const X = "
+      data = data.replace(
+        /\bTHREE\.(\w+?)([\s]*?=[^=])/gm,
+        `const $1$2`
+      );
+
       // remove all "THREE." string
       data = data.replace(regExp02, '');
 
       const lines = [];
       if (importFromThree.length > 0) {
-        let line = `import { ${importFromThree.join(', ')} } from 'three';`;
+        const imports = importFromThree.map(className => {
+          if (protectedNameMap[className]) return `${className} as ${protectedNameMap[className]}`;
+          return className;
+        });
+        let line = `import { ${imports.join(', ')} } from 'three';`;
         // hard wrap
         if (line.length >= 120) {
           line = `import {
-  ${importFromThree.join(',\n  ')}
+  ${imports.join(',\n  ')}
 } from 'three';`;
         }
         lines.push(line);
@@ -188,12 +212,8 @@ ${items}
         }).join('\n'));
       }
       if (lines.length > 0) lines.push('');
-      lines.push(
-        data,
-        '',
-        `export default ${name};`,
-        ''
-      );
+      lines.push(data, '');
+      if (!nonClassFlag) lines.push(`export default ${name};`, '');
 
       if (writeFlag) {
         const writeFilePath = path.resolve(writePath, file);
