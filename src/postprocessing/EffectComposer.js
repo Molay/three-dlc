@@ -1,5 +1,6 @@
 import { LinearFilter, RGBAFormat, WebGLRenderTarget } from 'three';
 import CopyShader from '../shaders/CopyShader';
+import ClearMaskPass from './ClearMaskPass';
 import MaskPass from './MaskPass';
 import ShaderPass from './ShaderPass';
 
