@@ -1,4 +1,5 @@
 import { DefaultLoadingManager, FileLoader } from 'three';
+import * as ThreeNode from '../nodes';
 
 /**
  * @author sunag / http://www.sunag.com.br/
@@ -178,7 +179,7 @@ Object.assign( NodeMaterialLoader.prototype, {
 
 			node = json.nodes[ uuid ];
 
-			object = new THREE[ node.nodeType + "Node" ]();
+			object = new ThreeNode[ node.nodeType + "Node" ]();
 
 			if ( node.name ) {
 
@@ -196,7 +197,7 @@ Object.assign( NodeMaterialLoader.prototype, {
 
 			node = json.materials[ uuid ];
 
-			object = new THREE[ node.type ]();
+			object = new ThreeNode[ node.type ]();
 
 			if ( node.name ) {
 
@@ -214,7 +215,7 @@ Object.assign( NodeMaterialLoader.prototype, {
 
 			node = json.passes[ uuid ];
 
-			object = new THREE[ node.type ]();
+			object = new ThreeNode[ node.type ]();
 
 			if ( node.name ) {
 

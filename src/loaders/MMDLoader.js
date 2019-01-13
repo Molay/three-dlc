@@ -1264,7 +1264,7 @@ const MMDLoader = ( function () {
 
 				// set transparent true if alpha morph is defined.
 
-				function checkAlphaMorph( elements, materials ) {
+				const checkAlphaMorph = function( elements, materials ) {
 
 					for ( var i = 0, il = elements.length; i < il; i ++ ) {
 
@@ -1282,7 +1282,7 @@ const MMDLoader = ( function () {
 
 					}
 
-				}
+				};
 
 				for ( var i = 0, il = data.morphs.length; i < il; i ++ ) {
 

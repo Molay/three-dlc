@@ -1,5 +1,8 @@
 # Change Log
 
+## [v0.100.0-alpha-2]
+feat: Add nodes support.
+
 ## [v0.100.0-alpha-1]
 fix: Fix postprocessing class issue.
 

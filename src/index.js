@@ -41,6 +41,7 @@ export * from './lines';
 export * from './loaders';
 export * from './math';
 export * from './modifiers';
+export * from './nodes';
 export * from './objects';
 export * from './pmrem';
 export * from './postprocessing';
