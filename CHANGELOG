@@ -1,5 +1,8 @@
 # Change Log
 
+## [v0.100.0-alpha-3]
+fix: Fix GlitchPass "Math" issue.
+
 ## [v0.100.0-alpha-2]
 feat: Add nodes support.
 
